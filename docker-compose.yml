@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  auth.api:
+    image: ${DOCKER_REGISTRY-}authapi
+    build:
+      context: .
+      dockerfile: Auth.API/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - auth.mongo
+
+  auth.mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - type: volume
+        source: auth-mongo-volume
+        target: /data/db
+      - type: volume
+        source: auth-mongo-volume
+        target: /data/configdb
+
+volumes:
+  auth-mongo-volume:
+    name: auth-mongo-volume

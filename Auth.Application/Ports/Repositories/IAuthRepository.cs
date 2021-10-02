@@ -9,5 +9,6 @@ namespace Auth.Application.Ports.Repositories
         Task<User> GetUserByEmail(string email);
         Task UpdateUser(User user);
         Task<User> GetUserByUserId(Guid userId);
+        Task CreateUser(User user);
     }
 }

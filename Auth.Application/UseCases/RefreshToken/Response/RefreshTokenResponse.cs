@@ -1,6 +1,6 @@
 ﻿namespace Auth.Application.UseCases.RefreshToken.Response
 {
-    public abstract class RefreshTokenResponse
+    public abstract class RefreshTokenResponse : UseCases.Response
     {
     }
 }

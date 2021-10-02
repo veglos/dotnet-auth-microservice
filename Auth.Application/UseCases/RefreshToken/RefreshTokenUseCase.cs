@@ -5,7 +5,6 @@ using Auth.Application.Ports.Services;
 using Auth.Application.UseCases.RefreshToken.Request;
 using Auth.Application.UseCases.RefreshToken.Response;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
@@ -13,18 +12,15 @@ namespace Auth.Application.UseCases.RefreshToken
 {
     public class RefreshTokenUseCase : IRefreshTokenUseCase
     {
-        private readonly IOptions<AppSettings> _settings;
         private readonly ILogger _logger;
         private readonly IAuthTokenService _authTokenService;
         private readonly IAuthRepository _authRepository;
 
         public RefreshTokenUseCase(
-            IOptions<AppSettings> settings,
             ILogger<RefreshTokenUseCase> logger,
             IAuthTokenService authTokenService,
             IAuthRepository authRepository)
         {
-            _settings = settings;
             _logger = logger;
             _authTokenService = authTokenService;
             _authRepository = authRepository;
@@ -75,9 +71,9 @@ namespace Auth.Application.UseCases.RefreshToken
 
                 var newToken = await _authTokenService.GenerateToken(user);
 
-                user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken(_settings.Value.RefreshTokenSettings.Length);
+                user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken();
                 user.RefreshToken.Active = true;
-                user.RefreshToken.ExpirationDate = DateTime.UtcNow.AddMinutes(_settings.Value.RefreshTokenSettings.LifeTimeInMinutes);
+                user.RefreshToken.ExpirationDate = DateTime.UtcNow.AddMinutes(await _authTokenService.GetRefreshTokenLifetimeInMinutes());
                 await _authRepository.UpdateUser(user);
 
                 var response = new RefreshTokenSuccessResponse

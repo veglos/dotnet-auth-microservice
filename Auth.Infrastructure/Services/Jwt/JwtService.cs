@@ -1,5 +1,4 @@
-﻿using Auth.Application;
-using Auth.Application.Exceptions;
+﻿using Auth.Application.Exceptions;
 using Auth.Application.Ports.Services;
 using Auth.Domain;
 using Microsoft.Extensions.Options;
@@ -15,9 +14,9 @@ namespace Auth.Infrastructure.Services.Jwt
 {
     public class JwtService : IAuthTokenService
     {
-        private readonly IOptions<AppSettings> _settings;
+        private readonly IOptions<JwtSettings> _settings;
 
-        public JwtService(IOptions<AppSettings> settings)
+        public JwtService(IOptions<JwtSettings> settings)
         {
             _settings = settings;
         }
@@ -56,12 +55,18 @@ namespace Auth.Infrastructure.Services.Jwt
             return Task.FromResult(serializedJwt);
         }
 
-        public Task<string> GenerateRefreshToken(int size)
+        public Task<string> GenerateRefreshToken()
         {
+            var size = _settings.Value.RefreshTokenSettings.Length;
             var buffer = new byte[size];
             using var rng = new RNGCryptoServiceProvider();
             rng.GetBytes(buffer);
             return Task.FromResult(Convert.ToBase64String(buffer));
+        }
+
+        public Task<int> GetRefreshTokenLifetimeInMinutes()
+        {
+            return Task.FromResult(_settings.Value.RefreshTokenSettings.LifeTimeInMinutes);
         }
 
         public Task<Guid> GetUserIdFromToken(string token)
@@ -117,5 +122,7 @@ namespace Auth.Infrastructure.Services.Jwt
                 return Task.FromResult(false);
             }
         }
+
+
     }
 }

@@ -5,7 +5,6 @@ using Auth.Application.UseCases.Login.Request;
 using Auth.Application.UseCases.Login.Response;
 using Auth.Domain;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
@@ -13,20 +12,17 @@ namespace Auth.Application.UseCases.Login
 {
     public class LoginUseCase : ILoginUseCase
     {
-        private readonly IOptions<AppSettings> _settings;
         private readonly ILogger _logger;
         private readonly IAuthTokenService _authTokenService;
         private readonly IAuthRepository _authRepository;
         private readonly ICryptographyService _cryptographyService;
 
         public LoginUseCase(
-            IOptions<AppSettings> settings,
             ILogger<LoginUseCase> logger,
             IAuthTokenService authTokenService,
             IAuthRepository authRepository,
             ICryptographyService cryptographyService)
         {
-            _settings = settings;
             _logger = logger;
             _authTokenService = authTokenService;
             _authRepository = authRepository;
@@ -38,7 +34,7 @@ namespace Auth.Application.UseCases.Login
             try
             {
                 var user = await _authRepository.GetUserByEmail(request.Email);
-                if(user == null)
+                if (user == null)
                 {
                     var response = new LoginErrorResponse
                     {
@@ -50,9 +46,9 @@ namespace Auth.Application.UseCases.Login
 
                 if (AreCredentialsValid(request.Password, user))
                 {
-                    user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken(_settings.Value.RefreshTokenSettings.Length);
+                    user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken();
                     user.RefreshToken.Active = true;
-                    user.RefreshToken.ExpirationDate = DateTime.UtcNow.AddMinutes(_settings.Value.RefreshTokenSettings.LifeTimeInMinutes);
+                    user.RefreshToken.ExpirationDate = DateTime.UtcNow.AddMinutes(await _authTokenService.GetRefreshTokenLifetimeInMinutes());
                     await _authRepository.UpdateUser(user);
 
                     var token = await _authTokenService.GenerateToken(user);
@@ -83,7 +79,7 @@ namespace Auth.Application.UseCases.Login
                 var response = new LoginErrorResponse
                 {
                     Message = Enum.GetName(ErrorCodes.AnUnexpectedErrorOcurred),
-                    Code = ErrorCodes.AnUnexpectedErrorOcurred.ToString()
+                    Code = ErrorCodes.AnUnexpectedErrorOcurred.ToString("D")
                 };
 
                 return response;
