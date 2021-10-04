@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using Auth.Application.Ports.Repositories;
+﻿using Auth.Application.Ports.Repositories;
 using Auth.Application.Ports.Services;
 using Auth.Application.UseCases.CreateUser;
 using Auth.Application.UseCases.Login;
@@ -9,13 +7,11 @@ using Auth.Application.UseCases.SignOut;
 using Auth.Infrastructure.Repositories.MongoDB;
 using Auth.Infrastructure.Services.Cryptography;
 using Auth.Infrastructure.Services.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace Auth.API
@@ -34,41 +30,9 @@ namespace Auth.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Set up jwtSettings
-            var jwtSettingsConfiguration = Configuration.GetSection("JwtSettings");
-            services.Configure<JwtSettings>(jwtSettingsConfiguration);
-            var jwtSettings = jwtSettingsConfiguration.Get<JwtSettings>().AuthTokenSettings;
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                if (CurrentEnvironment.IsDevelopment()) options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                    ClockSkew = TimeSpan.FromMinutes(0)
-
-                };
-            })
-            ;
-
-            services.AddAuthorization(options =>
-            {
-                //TODO: Can we get this from the database?
-                options.AddPolicy("CanReadProtectedResource", policy => policy.RequireClaim("permission", "CanReadProtectedResource"));
-            });
 
             // Register services
+            services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
             services.AddSingleton<IAuthTokenService, JwtService>();
             services.AddSingleton<ICryptographyService, CryptographyService>();
 
@@ -82,7 +46,10 @@ namespace Auth.API
             services.AddSingleton<ISignOutUseCase, SignOutUseCase>();
             services.AddSingleton<ICreateUserUseCase, CreateUserUseCase>();
 
+            // Controllers
             services.AddControllers();
+
+            // Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth.API", Version = "v1" });

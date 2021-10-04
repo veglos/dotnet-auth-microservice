@@ -46,9 +46,12 @@ namespace Auth.Application.UseCases.Login
 
                 if (AreCredentialsValid(request.Password, user))
                 {
-                    user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken();
-                    user.RefreshToken.Active = true;
-                    user.RefreshToken.ExpirationDate = DateTime.UtcNow.AddMinutes(await _authTokenService.GetRefreshTokenLifetimeInMinutes());
+                    user.RefreshToken = new Domain.RefreshToken
+                    {
+                        Value = await _authTokenService.GenerateRefreshToken(),
+                        Active = true,
+                        ExpirationDate = DateTime.UtcNow.AddMinutes(await _authTokenService.GetRefreshTokenLifetimeInMinutes())
+                    };
                     await _authRepository.UpdateUser(user);
 
                     var token = await _authTokenService.GenerateToken(user);
