@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace External.API
 {
@@ -29,6 +29,14 @@ namespace External.API
             services.Configure<AuthTokenSettings>(jwtSettingsConfiguration);
             var jwtSettings = jwtSettingsConfiguration.Get<AuthTokenSettings>();
 
+            RSA rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(
+                source: Convert.FromBase64String(jwtSettings.PublicKey),
+                bytesRead: out int _
+            );
+
+            var rsaKey = new RsaSecurityKey(rsa);
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -42,10 +50,12 @@ namespace External.API
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    RequireSignedTokens = true,
+                    RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                    IssuerSigningKey = rsaKey,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
             });

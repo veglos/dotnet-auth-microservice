@@ -23,8 +23,15 @@ namespace Auth.Infrastructure.Services.Jwt
 
         public Task<string> GenerateToken(User user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Value.AuthTokenSettings.SecretKey));
-            var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            using RSA rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(
+                source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PrivateKey),
+                bytesRead: out int _);
+
+            var signingCredentials = new SigningCredentials(
+                key: new RsaSecurityKey(rsa),
+                algorithm: SecurityAlgorithms.RsaSha256
+            );
 
             var claimsIdentity = new ClaimsIdentity();
 
@@ -73,6 +80,13 @@ namespace Auth.Infrastructure.Services.Jwt
         {
             try
             {
+                using RSA rsa = RSA.Create();
+                rsa.ImportRSAPrivateKey(
+                    source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PublicKey),
+                    bytesRead: out int _);
+
+                var rsaKey = new RsaSecurityKey(rsa);
+
                 var tokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -81,7 +95,7 @@ namespace Auth.Infrastructure.Services.Jwt
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = _settings.Value.AuthTokenSettings.Issuer,
                     ValidAudience = _settings.Value.AuthTokenSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Value.AuthTokenSettings.SecretKey)),
+                    IssuerSigningKey = rsaKey,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
 
@@ -99,6 +113,13 @@ namespace Auth.Infrastructure.Services.Jwt
 
         public Task<bool> IsTokenValid(string token, bool validateLifeTime)
         {
+            using RSA rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(
+                source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PublicKey),
+                bytesRead: out int _);
+
+            var rsaKey = new RsaSecurityKey(rsa);
+
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -107,7 +128,7 @@ namespace Auth.Infrastructure.Services.Jwt
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _settings.Value.AuthTokenSettings.Issuer,
                 ValidAudience = _settings.Value.AuthTokenSettings.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Value.AuthTokenSettings.SecretKey)),
+                IssuerSigningKey = rsaKey,
                 ClockSkew = TimeSpan.FromMinutes(0)
             };
 
