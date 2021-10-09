@@ -1,4 +1,6 @@
+using External.API.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -62,9 +64,12 @@ namespace External.API
 
             services.AddAuthorization(options =>
             {
-                //TODO: Can we get this from the database?
-                options.AddPolicy("can_read_weather", policy => policy.RequireClaim("permission", "can_read_weather"));
+                options.AddPolicy("CanReadWeather", policy =>
+                    policy.Requirements.Add(new GetWeatherRequirement()));
             });
+
+            // Singletons
+            services.AddSingleton<IAuthorizationHandler, GetWeatherHandler>();
 
             // Controllers
             services.AddControllers();

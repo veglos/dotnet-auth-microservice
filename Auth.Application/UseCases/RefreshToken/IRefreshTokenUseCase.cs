@@ -3,7 +3,7 @@ using Auth.Application.UseCases.RefreshToken.Response;
 
 namespace Auth.Application.UseCases.RefreshToken
 {
-    public interface IRefreshTokenUseCase : IUseCase<RefreshTokenResponse, RefreshTokenRequest>
+    public interface IRefreshTokenUseCase : IUseCase<RefreshTokenRequest, RefreshTokenResponse>
     {
     }
 }

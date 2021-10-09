@@ -3,7 +3,7 @@ using Auth.Application.UseCases.Login.Response;
 
 namespace Auth.Application.UseCases.Login
 {
-    public interface ILoginUseCase : IUseCase<LoginResponse, LoginRequest>
+    public interface ILoginUseCase : IUseCase<LoginRequest, LoginResponse>
     {
     }
 }

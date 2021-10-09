@@ -1,4 +1,6 @@
-﻿using Auth.Application.Ports.Repositories;
+﻿using System;
+using System.Security.Cryptography;
+using Auth.Application.Ports.Repositories;
 using Auth.Application.Ports.Services;
 using Auth.Application.UseCases.CreateUser;
 using Auth.Application.UseCases.Login;
@@ -33,10 +35,20 @@ namespace Auth.API
         {
 
             // Register services
-            services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
+            var jwtSettingsConfiguration = Configuration.GetSection("JwtSettings");
+            services.Configure<JwtSettings>(jwtSettingsConfiguration);
+            var jwtSettings = jwtSettingsConfiguration.Get<JwtSettings>();
 
             services.AddSingleton<IAuthTokenService, JwtService>();
             services.AddSingleton<ICryptographyService, CryptographyService>();
+
+            services.AddSingleton(provider =>
+            {
+                var rsa = RSA.Create();
+                rsa.ImportRSAPrivateKey(source: Convert.FromBase64String(jwtSettings.AuthTokenSettings.PrivateKey), bytesRead: out int _);
+                return new RsaSecurityKey(rsa);
+            });
+
 
             // Register repositories
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDBSettings"));

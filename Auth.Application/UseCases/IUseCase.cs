@@ -2,10 +2,10 @@
 
 namespace Auth.Application.UseCases
 {
-    public interface IUseCase<R, T>
-        where R : Response
-        where T : Request
+    public interface IUseCase<R, S>
+        where R : Request
+        where S : Response
     {
-        public Task<R> Execute(T request);
+        public Task<S> Execute(R request);
     }
 }

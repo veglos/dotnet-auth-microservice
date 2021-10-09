@@ -7,7 +7,6 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Auth.Infrastructure.Services.Jwt
@@ -15,21 +14,18 @@ namespace Auth.Infrastructure.Services.Jwt
     public class JwtService : IAuthTokenService
     {
         private readonly IOptions<JwtSettings> _settings;
+        private readonly RsaSecurityKey _rsaSecurityKey;
 
-        public JwtService(IOptions<JwtSettings> settings)
+        public JwtService(IOptions<JwtSettings> settings, RsaSecurityKey rsaSecurityKey)
         {
             _settings = settings;
+            _rsaSecurityKey = rsaSecurityKey;
         }
 
         public Task<string> GenerateToken(User user)
         {
-            using RSA rsa = RSA.Create();
-            rsa.ImportRSAPrivateKey(
-                source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PrivateKey),
-                bytesRead: out int _);
-
             var signingCredentials = new SigningCredentials(
-                key: new RsaSecurityKey(rsa),
+                key: _rsaSecurityKey,
                 algorithm: SecurityAlgorithms.RsaSha256
             );
 

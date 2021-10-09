@@ -25,7 +25,7 @@ namespace External.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "can_read_weather")]
+        [Authorize(Policy = "CanReadWeather")]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
