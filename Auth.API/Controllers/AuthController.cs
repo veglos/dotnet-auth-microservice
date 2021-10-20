@@ -21,16 +21,16 @@ namespace Auth.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ILoginUseCase _loginUseCase;
-        private readonly IRefreshTokenUseCase _refreshTokenUseCase;
-        private readonly ISignOutUseCase _signOutUseCase;
-        private readonly ICreateUserUseCase _createUserUseCase;
+        private readonly LoginUseCase _loginUseCase;
+        private readonly RefreshTokenUseCase _refreshTokenUseCase;
+        private readonly SignOutUseCase _signOutUseCase;
+        private readonly CreateUserUseCase _createUserUseCase;
 
         public AuthController(
-            ILoginUseCase loginUseCase,
-            IRefreshTokenUseCase refreshTokenUseCase,
-            ISignOutUseCase signOutUseCase,
-            ICreateUserUseCase createUserUseCase)
+            LoginUseCase loginUseCase,
+            RefreshTokenUseCase refreshTokenUseCase,
+            SignOutUseCase signOutUseCase,
+            CreateUserUseCase createUserUseCase)
         {
             _loginUseCase = loginUseCase;
             _refreshTokenUseCase = refreshTokenUseCase;

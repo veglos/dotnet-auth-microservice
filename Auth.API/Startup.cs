@@ -55,10 +55,10 @@ namespace Auth.API
             services.AddSingleton<IAuthRepository, AuthRepository>();
 
             // Register use cases
-            services.AddSingleton<ILoginUseCase, LoginUseCase>();
-            services.AddSingleton<IRefreshTokenUseCase, RefreshTokenUseCase>();
-            services.AddSingleton<ISignOutUseCase, SignOutUseCase>();
-            services.AddSingleton<ICreateUserUseCase, CreateUserUseCase>();
+            services.AddSingleton<LoginUseCase>();
+            services.AddSingleton<RefreshTokenUseCase>();
+            services.AddSingleton<SignOutUseCase>();
+            services.AddSingleton<CreateUserUseCase>();
 
             // Controllers
             services.AddControllers();
