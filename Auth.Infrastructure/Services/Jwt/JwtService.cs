@@ -109,13 +109,6 @@ namespace Auth.Infrastructure.Services.Jwt
         {
             try
             {
-                using RSA rsa = RSA.Create();
-                rsa.ImportRSAPrivateKey(
-                    source: Convert.FromBase64String(_settings.Value.AccessTokenSettings.PublicKey),
-                    bytesRead: out int _);
-
-                var rsaKey = new RsaSecurityKey(rsa);
-
                 var tokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -124,7 +117,7 @@ namespace Auth.Infrastructure.Services.Jwt
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = _settings.Value.AccessTokenSettings.Issuer,
                     ValidAudience = _settings.Value.AccessTokenSettings.Audience,
-                    IssuerSigningKey = rsaKey,
+                    IssuerSigningKey = _rsaSecurityKey,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
 
@@ -142,13 +135,6 @@ namespace Auth.Infrastructure.Services.Jwt
 
         public Task<bool> IsTokenValid(string token, bool validateLifeTime)
         {
-            using RSA rsa = RSA.Create();
-            rsa.ImportRSAPrivateKey(
-                source: Convert.FromBase64String(_settings.Value.AccessTokenSettings.PublicKey),
-                bytesRead: out int _);
-
-            var rsaKey = new RsaSecurityKey(rsa);
-
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -157,7 +143,7 @@ namespace Auth.Infrastructure.Services.Jwt
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _settings.Value.AccessTokenSettings.Issuer,
                 ValidAudience = _settings.Value.AccessTokenSettings.Audience,
-                IssuerSigningKey = rsaKey,
+                IssuerSigningKey = _rsaSecurityKey,
                 ClockSkew = TimeSpan.FromMinutes(0)
             };
 
@@ -172,7 +158,5 @@ namespace Auth.Infrastructure.Services.Jwt
                 return Task.FromResult(false);
             }
         }
-
-
     }
 }
