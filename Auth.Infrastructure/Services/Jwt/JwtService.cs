@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -35,8 +36,8 @@ namespace Auth.Infrastructure.Services.Jwt
             claimsIdentity.AddClaim(new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 
             // Add scope claim, which contains an array of scopes
-            claimsIdentity.AddClaim(new System.Security.Claims.Claim("scope", string.Join(" ", user.Scope)));
-
+            var scope = user.Claims.SingleOrDefault(c => c.Type == "scope");
+            if (scope != null) claimsIdentity.AddClaim(new System.Security.Claims.Claim("scope", string.Join(" ", scope.Value)));
 
             var jwtHandler = new JwtSecurityTokenHandler();
 

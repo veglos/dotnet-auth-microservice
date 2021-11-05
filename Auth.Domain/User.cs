@@ -13,7 +13,6 @@ namespace Auth.Domain
         public string Name { get; set; }
         public string LastName { get; set; }
         public IList<Claim> Claims { get; set; }
-        public IList<string> Scope { get; set; }
         public RefreshToken RefreshToken { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime UpdateDate { get; set; }
@@ -21,7 +20,6 @@ namespace Auth.Domain
         public User()
         {
             Claims = new List<Claim>();
-            Scope = new List<string>();
             RefreshToken = new RefreshToken();
         }
     }
