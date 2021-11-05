@@ -2,11 +2,11 @@
 {
     public class JwtSettings
     {
-        public AuthTokenSettings AuthTokenSettings { get; set; }
+        public AccessTokenSettings AccessTokenSettings { get; set; }
         public RefreshTokenSettings RefreshTokenSettings { get; set; }
     }
 
-    public class AuthTokenSettings
+    public class AccessTokenSettings
     {
         public string Issuer { get; set; }
         public string Audience { get; set; }

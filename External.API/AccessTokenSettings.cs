@@ -1,6 +1,6 @@
 ﻿namespace External.API
 {
-    public class AuthTokenSettings
+    public class AccessTokenSettings
     {
         public string Issuer { get; set; }
         public string Audience { get; set; }

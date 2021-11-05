@@ -27,9 +27,9 @@ namespace External.API
         public void ConfigureServices(IServiceCollection services)
         {
             // JWT
-            var jwtSettingsConfiguration = Configuration.GetSection("AuthTokenSettings");
-            services.Configure<AuthTokenSettings>(jwtSettingsConfiguration);
-            var jwtSettings = jwtSettingsConfiguration.Get<AuthTokenSettings>();
+            var jwtSettingsConfiguration = Configuration.GetSection("AccessTokenSettings");
+            services.Configure<AccessTokenSettings>(jwtSettingsConfiguration);
+            var jwtSettings = jwtSettingsConfiguration.Get<AccessTokenSettings>();
 
             RSA rsa = RSA.Create();
             rsa.ImportRSAPublicKey(

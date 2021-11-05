@@ -14,14 +14,6 @@ namespace Auth.Infrastructure.Services.Cryptography
 
         public CryptographyService() { }
 
-        public string GenerateRandomString(int size)
-        {
-            var buffer = new byte[size];
-            using var rng = new RNGCryptoServiceProvider();
-            rng.GetBytes(buffer);
-            return Convert.ToBase64String(buffer);
-        }
-
         public string GenerateSalt()
         {
             var buffer = new byte[_hashSize];

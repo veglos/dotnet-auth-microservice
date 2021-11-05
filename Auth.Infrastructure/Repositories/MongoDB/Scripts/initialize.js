@@ -16,7 +16,8 @@
             "Salt" : "hLT79dNxmKY8VGsen1R5tL+94ycNTFaFn+6bObKdvNvOgkoGOfZJoYBzZn7lNtuFZbG8Wn2UO4nULD185xdapA==",
             "Name" : "Freddie",
             "LastName" : "Mercury",
-            "Claims": [{"Type": "CanReadWeather","Value": "true"}],
+            "Claims": null,
+            "Scope": ["can_read_weather"],
             "RefreshToken" : null,
             "CreationDate" : date,
             "UpdateDate" : date
@@ -29,7 +30,8 @@
             "Salt" : "5y9alpf2gOIXSH5pF69mSXzXKJUh/Im/0hr7y4ipXCFumvfzPSDykS0g48ymEh/Fsf6tNW9RZX/2wZj09gbJNw==",
             "Name" : "Brian",
             "LastName" : "May",
-            "Claims" : null,
+            "Claims": null,
+            "Scope": null,
             "RefreshToken" : null,
             "CreationDate" : date,
             "UpdateDate" : date

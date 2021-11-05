@@ -69,7 +69,7 @@ namespace Auth.Application.UseCases.RefreshToken
                     };
                 }
 
-                var newToken = await _authTokenService.GenerateToken(user);
+                var newToken = await _authTokenService.GenerateAccessToken(user);
 
                 user.RefreshToken.Value = await _authTokenService.GenerateRefreshToken();
                 user.RefreshToken.Active = true;

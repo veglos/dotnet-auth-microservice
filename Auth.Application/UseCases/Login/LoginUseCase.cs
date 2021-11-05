@@ -54,11 +54,13 @@ namespace Auth.Application.UseCases.Login
                     };
                     await _authRepository.UpdateUser(user);
 
-                    var token = await _authTokenService.GenerateToken(user);
+                    var idToken = await _authTokenService.GenerateIdToken(user);
+                    var accessToken = await _authTokenService.GenerateAccessToken(user);
 
                     var response = new LoginSuccessResponse
                     {
-                        AccessToken = token,
+                        IdToken = idToken,
+                        AccessToken = accessToken,
                         RefreshToken = user.RefreshToken.Value
                     };
 

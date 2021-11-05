@@ -6,7 +6,8 @@ namespace Auth.Application.Ports.Services
 {
     public interface IAuthTokenService
     {
-        Task<string> GenerateToken(User user);
+        Task<string> GenerateIdToken(User user);
+        Task<string> GenerateAccessToken(User user);
         Task<string> GenerateRefreshToken();
         Task<Guid> GetUserIdFromToken(string token);
         Task<int> GetRefreshTokenLifetimeInMinutes();

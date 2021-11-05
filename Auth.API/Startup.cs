@@ -45,7 +45,7 @@ namespace Auth.API
             services.AddSingleton(provider =>
             {
                 var rsa = RSA.Create();
-                rsa.ImportRSAPrivateKey(source: Convert.FromBase64String(jwtSettings.AuthTokenSettings.PrivateKey), bytesRead: out int _);
+                rsa.ImportRSAPrivateKey(source: Convert.FromBase64String(jwtSettings.AccessTokenSettings.PrivateKey), bytesRead: out int _);
                 return new RsaSecurityKey(rsa);
             });
 

@@ -22,7 +22,39 @@ namespace Auth.Infrastructure.Services.Jwt
             _rsaSecurityKey = rsaSecurityKey;
         }
 
-        public Task<string> GenerateToken(User user)
+        public Task<string> GenerateAccessToken(User user)
+        {
+            var signingCredentials = new SigningCredentials(
+                key: _rsaSecurityKey,
+                algorithm: SecurityAlgorithms.RsaSha256
+            );
+
+            var claimsIdentity = new ClaimsIdentity();
+
+            // Access Token must only carry the user Id
+            claimsIdentity.AddClaim(new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+
+            // Add scope claim, which contains an array of scopes
+            claimsIdentity.AddClaim(new System.Security.Claims.Claim("scope", string.Join(" ", user.Scope)));
+
+
+            var jwtHandler = new JwtSecurityTokenHandler();
+
+            var jwt = jwtHandler.CreateJwtSecurityToken(
+                issuer: _settings.Value.AccessTokenSettings.Issuer,
+                audience: _settings.Value.AccessTokenSettings.Audience,
+                subject: claimsIdentity,
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddSeconds(_settings.Value.AccessTokenSettings.LifeTimeInSeconds),
+                issuedAt: DateTime.UtcNow,
+                signingCredentials: signingCredentials);
+
+            var serializedJwt = jwtHandler.WriteToken(jwt);
+
+            return Task.FromResult(serializedJwt);
+        }
+
+        public Task<string> GenerateIdToken(User user)
         {
             var signingCredentials = new SigningCredentials(
                 key: _rsaSecurityKey,
@@ -37,6 +69,7 @@ namespace Auth.Infrastructure.Services.Jwt
             claimsIdentity.AddClaim(new System.Security.Claims.Claim(ClaimTypes.GivenName, user.Name));
             claimsIdentity.AddClaim(new System.Security.Claims.Claim(ClaimTypes.Surname, user.LastName));
 
+            // Add custom claims if any
             foreach (var c in user.Claims ?? System.Linq.Enumerable.Empty<Domain.Claim>())
             {
                 claimsIdentity.AddClaim(new System.Security.Claims.Claim(c.Type, c.Value));
@@ -45,11 +78,11 @@ namespace Auth.Infrastructure.Services.Jwt
             var jwtHandler = new JwtSecurityTokenHandler();
 
             var jwt = jwtHandler.CreateJwtSecurityToken(
-                issuer: _settings.Value.AuthTokenSettings.Issuer,
-                audience: _settings.Value.AuthTokenSettings.Audience,
+                issuer: _settings.Value.AccessTokenSettings.Issuer,
+                audience: _settings.Value.AccessTokenSettings.Audience,
                 subject: claimsIdentity,
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddSeconds(_settings.Value.AuthTokenSettings.LifeTimeInSeconds),
+                expires: DateTime.UtcNow.AddSeconds(_settings.Value.AccessTokenSettings.LifeTimeInSeconds),
                 issuedAt: DateTime.UtcNow,
                 signingCredentials: signingCredentials);
 
@@ -78,7 +111,7 @@ namespace Auth.Infrastructure.Services.Jwt
             {
                 using RSA rsa = RSA.Create();
                 rsa.ImportRSAPrivateKey(
-                    source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PublicKey),
+                    source: Convert.FromBase64String(_settings.Value.AccessTokenSettings.PublicKey),
                     bytesRead: out int _);
 
                 var rsaKey = new RsaSecurityKey(rsa);
@@ -89,8 +122,8 @@ namespace Auth.Infrastructure.Services.Jwt
                     ValidateAudience = true,
                     ValidateLifetime = false, // we may be trying to validate an expired token so it makes no sense checking for it's lifetime.
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = _settings.Value.AuthTokenSettings.Issuer,
-                    ValidAudience = _settings.Value.AuthTokenSettings.Audience,
+                    ValidIssuer = _settings.Value.AccessTokenSettings.Issuer,
+                    ValidAudience = _settings.Value.AccessTokenSettings.Audience,
                     IssuerSigningKey = rsaKey,
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
@@ -111,7 +144,7 @@ namespace Auth.Infrastructure.Services.Jwt
         {
             using RSA rsa = RSA.Create();
             rsa.ImportRSAPrivateKey(
-                source: Convert.FromBase64String(_settings.Value.AuthTokenSettings.PublicKey),
+                source: Convert.FromBase64String(_settings.Value.AccessTokenSettings.PublicKey),
                 bytesRead: out int _);
 
             var rsaKey = new RsaSecurityKey(rsa);
@@ -122,8 +155,8 @@ namespace Auth.Infrastructure.Services.Jwt
                 ValidateAudience = true,
                 ValidateLifetime = validateLifeTime,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _settings.Value.AuthTokenSettings.Issuer,
-                ValidAudience = _settings.Value.AuthTokenSettings.Audience,
+                ValidIssuer = _settings.Value.AccessTokenSettings.Issuer,
+                ValidAudience = _settings.Value.AccessTokenSettings.Audience,
                 IssuerSigningKey = rsaKey,
                 ClockSkew = TimeSpan.FromMinutes(0)
             };
