@@ -54,6 +54,7 @@ namespace Auth.API.Controllers
             return await _refreshTokenUseCase.Execute(request);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("SignOut")]
         public async Task<SignOutResponse> SignOut(SignOutRequest request)
